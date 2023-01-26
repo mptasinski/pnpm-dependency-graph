@@ -17,8 +17,11 @@ jobs:
           npm run all
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
+    permissions: 
+      id-token: write
+      contents: write
     steps:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          milliseconds: 1000
+          lockFilePath: test-pnpm-lock.yaml
