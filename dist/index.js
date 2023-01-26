@@ -100,7 +100,7 @@ const parseFile = ({ fileContent }) => {
     const parsedFile = yaml_1.default.parse(fileContent);
     const packageStore = createDependenciesList(parsedFile.packages);
     return Object.entries(parsedFile.importers).map(([workspace, definition]) => {
-        const manifest = new manifest_1.Manifest(workspace === '.' ? 'root' : workspace, workspace);
+        const manifest = new manifest_1.Manifest(workspace === '.' ? 'root' : workspace, `${workspace}/package.json`);
         if (definition?.specifiers) {
             Object.entries(definition.specifiers)
                 .map(([name, version]) => createPackageName(name, version))

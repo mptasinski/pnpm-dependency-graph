@@ -56,7 +56,7 @@ export const parseFile = ({fileContent}: LoadedFile): Manifest[] => {
   return Object.entries(parsedFile.importers).map(([workspace, definition]) => {
     const manifest = new Manifest(
       workspace === '.' ? 'root' : workspace,
-      workspace
+      `${workspace}/package.json`
     )
     if (definition?.specifiers) {
       Object.entries(definition.specifiers)

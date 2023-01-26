@@ -101,14 +101,14 @@ test('parse file', () => {
       },
       name: 'root',
       file: {
-        source_location: '.'
+        source_location: './package.json'
       }
     },
     {
       resolved: {},
       name: 'packages/designSystem',
       file: {
-        source_location: 'packages/designSystem'
+        source_location: 'packages/designSystem/package.json'
       }
     },
     {
@@ -122,7 +122,7 @@ test('parse file', () => {
       },
       name: 'packages/tracker',
       file: {
-        source_location: 'packages/tracker'
+        source_location: 'packages/tracker/package.json'
       }
     },
     {
@@ -136,7 +136,7 @@ test('parse file', () => {
       },
       name: 'pages/unsupportedBrowser',
       file: {
-        source_location: 'pages/unsupportedBrowser'
+        source_location: 'pages/unsupportedBrowser/package.json'
       }
     },
     {
@@ -156,7 +156,7 @@ test('parse file', () => {
       },
       name: 'pages/wizard',
       file: {
-        source_location: 'pages/wizard'
+        source_location: 'pages/wizard/package.json'
       }
     }
   ])
