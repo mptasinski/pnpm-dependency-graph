@@ -1,6 +1,9 @@
 name: 'pnpm dependency list to dependency graph'
 description: 'Convert json formated dependecy list to github dependecy graph'
 author: 'mptasinski'
+branding:
+  icon: 'package'
+  color: 'orange'
 inputs:
   lockFilePath:
     required: false
