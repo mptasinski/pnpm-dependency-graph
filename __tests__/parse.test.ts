@@ -80,11 +80,15 @@ packages:
 
 test('parse file', () => {
   expect(
-    JSON.parse(JSON.stringify(parseFile({
-      fileContent,
-      filename: 'package.json',
-      filePath: './package.json'
-    })))
+    JSON.parse(
+      JSON.stringify(
+        parseFile({
+          fileContent,
+          filename: 'package.json',
+          filePath: './package.json'
+        })
+      )
+    )
   ).toEqual([
     {
       resolved: {

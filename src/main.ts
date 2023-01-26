@@ -1,8 +1,8 @@
 import * as core from '@actions/core'
 import fs from 'fs'
 import path from 'path'
-import { prepareSnapshot } from './prepareSnapshot'
-import { submitSnapshot } from '@github/dependency-submission-toolkit'
+import {prepareSnapshot} from './prepareSnapshot'
+import {submitSnapshot} from '@github/dependency-submission-toolkit'
 
 const searchFile = (): string => {
   const lockFilePath = core.getInput('lockFilePath')
@@ -17,15 +17,14 @@ const run = (): void => {
   }
 
   prepareSnapshot(filepath)
-    .then((snapshot) => {
+    .then(snapshot => {
       core.debug('Snapshot preview')
       core.debug(JSON.stringify(snapshot, null, 2))
       submitSnapshot(snapshot)
     })
-    .catch((e) => {
+    .catch(e => {
       core.error('parsing file error', e)
     })
-
 }
 
-run() 
+run()
