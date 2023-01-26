@@ -5,6 +5,10 @@ branding:
   icon: 'package'
   color: 'orange'
 inputs:
+  token:
+    description: "GitHub Personal Access Token (PAT). Defaults to PAT provided by Actions runner."
+    required: false
+    default: ${{ github.token }}
   lockFilePath:
     required: false
     description: 'path to pnpm-lock file'
