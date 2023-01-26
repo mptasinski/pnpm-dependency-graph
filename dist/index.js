@@ -25,60 +25,33 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const parseFile_1 = __nccwpck_require__(4924);
 const core = __importStar(__nccwpck_require__(2186));
-const github = __importStar(__nccwpck_require__(5438));
 const fs_1 = __importDefault(__nccwpck_require__(5747));
 const path_1 = __importDefault(__nccwpck_require__(5622));
-const util_1 = __nccwpck_require__(1669);
+const prepareSnapshot_1 = __nccwpck_require__(8421);
 const dependency_submission_toolkit_1 = __nccwpck_require__(9810);
-const rearFile = (0, util_1.promisify)(fs_1.default.readFile);
-const searchFile = () => __awaiter(void 0, void 0, void 0, function* () {
+const searchFile = () => {
     const lockFilePath = core.getInput('lockFilePath');
     return path_1.default.resolve(lockFilePath);
-});
-const loadFileContent = (filePath) => __awaiter(void 0, void 0, void 0, function* () {
-    return rearFile(filePath, { encoding: 'utf-8' })
-        .then(fileContent => ({
-        fileContent,
-        filePath,
-        filename: path_1.default.basename(filePath)
-    }));
-});
+};
 const run = () => {
-    const snapshot = new dependency_submission_toolkit_1.Snapshot({
-        name: "pnpm-to-dependency-graph-action",
-        version: "1.0.0",
-        url: "https://github.com/mptasinski/pnpm-dependency-graph",
-    }, github.context, {
-        correlator: `${github.context.job}`,
-        id: github.context.runId.toString()
-    });
-    searchFile()
-        .then(loadFileContent)
-        .then((f) => {
-        console.log(f);
-        return f;
+    const filepath = searchFile();
+    if (!fs_1.default.existsSync(filepath)) {
+        return;
+    }
+    (0, prepareSnapshot_1.prepareSnapshot)(filepath)
+        .then((snapshot) => {
+        core.debug('Snapshot preview');
+        core.debug(JSON.stringify(snapshot, null, 2));
+        (0, dependency_submission_toolkit_1.submitSnapshot)(snapshot);
     })
-        .then(parseFile_1.parseFile)
-        .then(manifests => manifests.map(manifest => snapshot.addManifest(manifest)))
         .catch((e) => {
         core.error('parsing file error', e);
     });
-    (0, dependency_submission_toolkit_1.submitSnapshot)(snapshot);
 };
 run();
 
@@ -136,6 +109,80 @@ const parseFile = ({ fileContent }) => {
     });
 };
 exports.parseFile = parseFile;
+
+
+/***/ }),
+
+/***/ 8421:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.prepareSnapshot = void 0;
+const github = __importStar(__nccwpck_require__(5438));
+const dependency_submission_toolkit_1 = __nccwpck_require__(9810);
+const fs_1 = __importDefault(__nccwpck_require__(5747));
+const parseFile_1 = __nccwpck_require__(4924);
+const path_1 = __importDefault(__nccwpck_require__(5622));
+const util_1 = __nccwpck_require__(1669);
+const rearFile = (0, util_1.promisify)(fs_1.default.readFile);
+const loadFileContent = (filePath) => __awaiter(void 0, void 0, void 0, function* () {
+    return rearFile(filePath, { encoding: 'utf-8' }).then(fileContent => ({
+        fileContent,
+        filePath,
+        filename: path_1.default.basename(filePath)
+    }));
+});
+const createSnapshot = () => new dependency_submission_toolkit_1.Snapshot({
+    name: 'pnpm-to-dependency-graph-action',
+    version: '1.0.0',
+    url: 'https://github.com/mptasinski/pnpm-dependency-graph'
+}, github.context, {
+    correlator: `${github.context.job}`,
+    id: github.context.runId.toString()
+});
+const prepareSnapshot = (file) => __awaiter(void 0, void 0, void 0, function* () {
+    return loadFileContent(file)
+        .then(parseFile_1.parseFile)
+        .then(manifests => {
+        const snapshot = createSnapshot();
+        manifests.forEach(manifest => snapshot.addManifest(manifest));
+        return snapshot;
+    });
+});
+exports.prepareSnapshot = prepareSnapshot;
 
 
 /***/ }),
