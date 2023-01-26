@@ -1,19 +1,30 @@
 import * as core from '@actions/core'
-import {wait} from './wait'
+import path from 'path'
+import { prepareSnapshot } from './prepareSnapshot'
+import { submitSnapshot } from '@github/dependency-submission-toolkit'
 
-async function run(): Promise<void> {
-  try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
-
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    core.setOutput('time', new Date().toTimeString())
-  } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
-  }
+const searchFile = (): string => {
+  const lockFilePath = core.getInput('lockFilePath')
+  return path.resolve(lockFilePath)
 }
 
-run()
+const run = (): void => {
+  const filepath = searchFile()
+
+  if (!filepath) {
+    return
+  }
+
+  prepareSnapshot(filepath)
+    .then((snapshot) => {
+      core.debug('Snapshot preview')
+      core.debug(JSON.stringify(snapshot, null, 2))
+      submitSnapshot(snapshot)
+    })
+    .catch((e) => {
+      core.error('parsing file error', e)
+    })
+
+}
+
+run() 

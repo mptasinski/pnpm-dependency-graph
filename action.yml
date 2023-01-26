@@ -1,11 +1,11 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'pnpm dependency list to dependency graph'
+description: 'Convert json formated dependecy list to github dependecy graph'
+author: 'mptasinski'
 inputs:
-  milliseconds: # change this
-    required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  lockFilePath:
+    required: false
+    description: 'path to pnpm-lock file'
+    default: 'pnpm-lock.yaml'
 runs:
   using: 'node16'
   main: 'dist/index.js'
