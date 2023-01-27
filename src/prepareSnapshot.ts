@@ -1,5 +1,4 @@
 import * as github from '@actions/github'
-import {LoadedFile} from './types/LoadedFile'
 import {Snapshot} from '@github/dependency-submission-toolkit'
 import fs from 'fs'
 import {parseFile} from './parseFile'
@@ -8,12 +7,8 @@ import {promisify} from 'util'
 
 const rearFile = promisify(fs.readFile)
 
-const loadFileContent = async (filePath: string): Promise<LoadedFile> =>
-  rearFile(filePath, {encoding: 'utf-8'}).then(fileContent => ({
-    fileContent,
-    filePath, // make shure this path is valid
-    filename: path.basename(filePath)
-  }))
+const loadFileContent = async (filePath: string): Promise<string> =>
+  rearFile(filePath, {encoding: 'utf-8'})
 
 const createSnapshot = (): Snapshot =>
   new Snapshot(
@@ -29,8 +24,19 @@ const createSnapshot = (): Snapshot =>
     }
   )
 
-export const prepareSnapshot = async (file: string): Promise<Snapshot> =>
-  loadFileContent(file)
+export const prepareSnapshot = async (
+  filePath: string,
+  currentVersion: string,
+  repoName: string
+): Promise<Snapshot> =>
+  loadFileContent(filePath)
+    .then(fileContent => ({
+      fileContent,
+      filePath,
+      filename: path.basename(filePath),
+      currentVersion,
+      repoName
+    }))
     .then(parseFile)
     .then(manifests => {
       const snapshot = createSnapshot()

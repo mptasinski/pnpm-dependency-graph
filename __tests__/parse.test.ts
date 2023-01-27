@@ -85,7 +85,9 @@ test('parse file', () => {
         parseFile({
           fileContent,
           filename: 'package.json',
-          filePath: './package.json'
+          filePath: './package.json',
+          currentVersion: '1.0.0',
+          repoName: 'Repo'
         })
       )
     )
