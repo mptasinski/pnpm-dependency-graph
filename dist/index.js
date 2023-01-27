@@ -38,16 +38,15 @@ const fs_1 = __importDefault(__nccwpck_require__(7147));
 const path_1 = __importDefault(__nccwpck_require__(1017));
 const prepareSnapshot_1 = __nccwpck_require__(8421);
 const dependency_submission_toolkit_1 = __nccwpck_require__(9810);
-const searchFile = () => {
-    const lockFilePath = core.getInput('lockFilePath');
-    return path_1.default.resolve(lockFilePath);
-};
+const searchFile = () => path_1.default.resolve(core.getInput('lockFilePath'));
+const getRepositoryName = () => core.getInput('repoName') || 'Repo';
+const getRepositoryVersion = () => core.getInput('repoVersion') || '1.0.0';
 const run = () => {
     const filepath = searchFile();
     if (!fs_1.default.existsSync(filepath)) {
         return;
     }
-    (0, prepareSnapshot_1.prepareSnapshot)(filepath)
+    (0, prepareSnapshot_1.prepareSnapshot)(filepath, getRepositoryVersion(), getRepositoryName())
         .then(snapshot => {
         core.debug('Snapshot preview');
         core.debug(JSON.stringify(snapshot, null, 2));
@@ -96,14 +95,16 @@ const createDependenciesList = (packages) => {
         return map;
     }, new Map());
 };
-const parseFile = ({ fileContent }) => {
+const parseFile = ({ fileContent, repoName, currentVersion }) => {
     const parsedFile = yaml_1.default.parse(fileContent);
     const packageStore = createDependenciesList(parsedFile.packages);
     return Object.entries(parsedFile.importers).map(([workspace, definition]) => {
-        const manifest = new manifest_1.Manifest(workspace === '.' ? 'root' : workspace, `${workspace}/package.json`);
+        const manifest = new manifest_1.Manifest(workspace === '.'
+            ? `${repoName} ${currentVersion}`
+            : `${repoName}/${workspace} ${currentVersion}`, `${workspace}/package.json`);
         if (definition?.specifiers) {
             Object.entries(definition.specifiers)
-                .map(([name, version]) => createPackageName(name, version))
+                .map(([packageName, packageVersion]) => createPackageName(packageName, packageVersion))
                 .map(pkg => packageStore.get(pkg) || new package_1.Package(pkg))
                 .forEach(dependency => manifest.addDirectDependency(dependency));
         }
@@ -155,11 +156,7 @@ const parseFile_1 = __nccwpck_require__(4924);
 const path_1 = __importDefault(__nccwpck_require__(1017));
 const util_1 = __nccwpck_require__(3837);
 const rearFile = (0, util_1.promisify)(fs_1.default.readFile);
-const loadFileContent = async (filePath) => rearFile(filePath, { encoding: 'utf-8' }).then(fileContent => ({
-    fileContent,
-    filePath,
-    filename: path_1.default.basename(filePath)
-}));
+const loadFileContent = async (filePath) => rearFile(filePath, { encoding: 'utf-8' });
 const createSnapshot = () => new dependency_submission_toolkit_1.Snapshot({
     name: 'pnpm-to-dependency-graph-action',
     version: '1.0.0',
@@ -168,7 +165,14 @@ const createSnapshot = () => new dependency_submission_toolkit_1.Snapshot({
     correlator: `${github.context.job}`,
     id: github.context.runId.toString()
 });
-const prepareSnapshot = async (file) => loadFileContent(file)
+const prepareSnapshot = async (filePath, currentVersion, repoName) => loadFileContent(filePath)
+    .then(fileContent => ({
+    fileContent,
+    filePath,
+    filename: path_1.default.basename(filePath),
+    currentVersion,
+    repoName
+}))
     .then(parseFile_1.parseFile)
     .then(manifests => {
     const snapshot = createSnapshot();

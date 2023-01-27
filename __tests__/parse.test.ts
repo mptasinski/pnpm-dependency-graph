@@ -85,7 +85,9 @@ test('parse file', () => {
         parseFile({
           fileContent,
           filename: 'package.json',
-          filePath: './package.json'
+          filePath: './package.json',
+          currentVersion: '1.0.0',
+          repoName: 'Repo'
         })
       )
     )
@@ -99,14 +101,14 @@ test('parse file', () => {
           dependencies: []
         }
       },
-      name: 'root',
+      name: 'Repo 1.0.0',
       file: {
         source_location: './package.json'
       }
     },
     {
       resolved: {},
-      name: 'packages/designSystem',
+      name: 'Repo/packages/designSystem 1.0.0',
       file: {
         source_location: 'packages/designSystem/package.json'
       }
@@ -120,7 +122,7 @@ test('parse file', () => {
           dependencies: []
         }
       },
-      name: 'packages/tracker',
+      name: 'Repo/packages/tracker 1.0.0',
       file: {
         source_location: 'packages/tracker/package.json'
       }
@@ -134,7 +136,7 @@ test('parse file', () => {
           dependencies: []
         }
       },
-      name: 'pages/unsupportedBrowser',
+      name: 'Repo/pages/unsupportedBrowser 1.0.0',
       file: {
         source_location: 'pages/unsupportedBrowser/package.json'
       }
@@ -154,7 +156,7 @@ test('parse file', () => {
           dependencies: []
         }
       },
-      name: 'pages/wizard',
+      name: 'Repo/pages/wizard 1.0.0',
       file: {
         source_location: 'pages/wizard/package.json'
       }

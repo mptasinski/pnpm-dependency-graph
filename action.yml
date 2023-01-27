@@ -9,6 +9,14 @@ inputs:
     description: "GitHub Personal Access Token (PAT). Defaults to PAT provided by Actions runner."
     required: false
     default: ${{ github.token }}
+  repoName:
+    description: "repository Name"
+    required: false
+    default: ${{ github.event.repository.name }}
+  repoVersion:
+    description: "repository version"
+    required: false
+    default: '1.0.0'
   lockFilePath:
     required: false
     description: 'path to pnpm-lock file'

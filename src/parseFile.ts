@@ -48,19 +48,27 @@ const createDependenciesList = (
   }, new Map<string, Package>())
 }
 
-export const parseFile = ({fileContent}: LoadedFile): Manifest[] => {
+export const parseFile = ({
+  fileContent,
+  repoName,
+  currentVersion
+}: LoadedFile): Manifest[] => {
   const parsedFile = YAML.parse(fileContent) as LockFile
 
   const packageStore = createDependenciesList(parsedFile.packages)
 
   return Object.entries(parsedFile.importers).map(([workspace, definition]) => {
     const manifest = new Manifest(
-      workspace === '.' ? 'root' : workspace,
+      workspace === '.'
+        ? `${repoName} ${currentVersion}`
+        : `${repoName}/${workspace} ${currentVersion}`,
       `${workspace}/package.json`
     )
     if (definition?.specifiers) {
       Object.entries(definition.specifiers)
-        .map(([name, version]) => createPackageName(name, version))
+        .map(([packageName, packageVersion]) =>
+          createPackageName(packageName, packageVersion)
+        )
         .map(pkg => packageStore.get(pkg) || new Package(pkg))
         .forEach(dependency => manifest.addDirectDependency(dependency))
     }

@@ -4,10 +4,10 @@ import path from 'path'
 import {prepareSnapshot} from './prepareSnapshot'
 import {submitSnapshot} from '@github/dependency-submission-toolkit'
 
-const searchFile = (): string => {
-  const lockFilePath = core.getInput('lockFilePath')
-  return path.resolve(lockFilePath)
-}
+const searchFile = (): string => path.resolve(core.getInput('lockFilePath'))
+const getRepositoryName = (): string => core.getInput('repoName') || 'Repo'
+const getRepositoryVersion = (): string =>
+  core.getInput('repoVersion') || '1.0.0'
 
 const run = (): void => {
   const filepath = searchFile()
@@ -16,7 +16,7 @@ const run = (): void => {
     return
   }
 
-  prepareSnapshot(filepath)
+  prepareSnapshot(filepath, getRepositoryVersion(), getRepositoryName())
     .then(snapshot => {
       core.debug('Snapshot preview')
       core.debug(JSON.stringify(snapshot, null, 2))
