@@ -50,7 +50,7 @@ const createDependenciesList = (
 }
 
 export const parseFile = ({fileContent}: LoadedFile): Manifest[] => {
-  const repoName = github.context.repo.repo
+  const repoName = github?.context.repo.repo || 'Repo'
   const version = '1.0.0'
   const parsedFile = YAML.parse(fileContent) as LockFile
 
@@ -58,12 +58,16 @@ export const parseFile = ({fileContent}: LoadedFile): Manifest[] => {
 
   return Object.entries(parsedFile.importers).map(([workspace, definition]) => {
     const manifest = new Manifest(
-      workspace === '.' ? `${repoName} ${version}` : `${repoName}/${workspace} ${version}`,
+      workspace === '.'
+        ? `${repoName} ${version}`
+        : `${repoName}/${workspace} ${version}`,
       `${workspace}/package.json`
     )
     if (definition?.specifiers) {
       Object.entries(definition.specifiers)
-        .map(([name, version]) => createPackageName(name, version))
+        .map(([packageName, packageVersion]) =>
+          createPackageName(packageName, packageVersion)
+        )
         .map(pkg => packageStore.get(pkg) || new Package(pkg))
         .forEach(dependency => manifest.addDirectDependency(dependency))
     }

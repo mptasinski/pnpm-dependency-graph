@@ -75,6 +75,7 @@ exports.parseFile = void 0;
 const manifest_1 = __nccwpck_require__(2202);
 const package_1 = __nccwpck_require__(2003);
 const yaml_1 = __importDefault(__nccwpck_require__(4083));
+const github_1 = __importDefault(__nccwpck_require__(5438));
 // escape name from @angular/animation to %40angular/animation
 const escapeName = (name) => name.replace('@', '%40');
 const createPackageName = (name, version, pkg = 'npm') => `pkg:${pkg}/${escapeName(name)}@${version}`;
@@ -97,13 +98,17 @@ const createDependenciesList = (packages) => {
     }, new Map());
 };
 const parseFile = ({ fileContent }) => {
+    const repoName = github_1.default?.context.repo.repo || 'Repo';
+    const version = '1.0.0';
     const parsedFile = yaml_1.default.parse(fileContent);
     const packageStore = createDependenciesList(parsedFile.packages);
     return Object.entries(parsedFile.importers).map(([workspace, definition]) => {
-        const manifest = new manifest_1.Manifest(workspace === '.' ? 'root' : workspace, `${workspace}/package.json`);
+        const manifest = new manifest_1.Manifest(workspace === '.'
+            ? `${repoName} ${version}`
+            : `${repoName}/${workspace} ${version}`, `${workspace}/package.json`);
         if (definition?.specifiers) {
             Object.entries(definition.specifiers)
-                .map(([name, version]) => createPackageName(name, version))
+                .map(([packageName, packageVersion]) => createPackageName(packageName, packageVersion))
                 .map(pkg => packageStore.get(pkg) || new package_1.Package(pkg))
                 .forEach(dependency => manifest.addDirectDependency(dependency));
         }
