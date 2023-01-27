@@ -38,11 +38,14 @@ const fs_1 = __importDefault(__nccwpck_require__(7147));
 const path_1 = __importDefault(__nccwpck_require__(1017));
 const prepareSnapshot_1 = __nccwpck_require__(8421);
 const dependency_submission_toolkit_1 = __nccwpck_require__(9810);
+const github_1 = __importDefault(__nccwpck_require__(5438));
 const searchFile = () => {
     const lockFilePath = core.getInput('lockFilePath');
     return path_1.default.resolve(lockFilePath);
 };
 const run = () => {
+    core.debug('github');
+    core.debug(JSON.stringify(github_1.default, null, 2));
     const filepath = searchFile();
     if (!fs_1.default.existsSync(filepath)) {
         return;

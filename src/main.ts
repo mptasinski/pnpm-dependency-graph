@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import {prepareSnapshot} from './prepareSnapshot'
 import {submitSnapshot} from '@github/dependency-submission-toolkit'
+import github from '@actions/github'
 
 const searchFile = (): string => {
   const lockFilePath = core.getInput('lockFilePath')
@@ -10,6 +11,8 @@ const searchFile = (): string => {
 }
 
 const run = (): void => {
+  core.debug('github')
+  core.debug(JSON.stringify(github, null, 2))
   const filepath = searchFile()
 
   if (!fs.existsSync(filepath)) {
