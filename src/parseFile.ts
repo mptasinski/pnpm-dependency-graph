@@ -3,6 +3,7 @@ import {LockFile} from './types/LockFile'
 import {Manifest} from '@github/dependency-submission-toolkit/dist/manifest'
 import {Package} from '@github/dependency-submission-toolkit/dist/package'
 import YAML from 'yaml'
+import github from '@actions/github'
 
 // escape name from @angular/animation to %40angular/animation
 const escapeName = (name: string): string => name.replace('@', '%40')
@@ -49,13 +50,15 @@ const createDependenciesList = (
 }
 
 export const parseFile = ({fileContent}: LoadedFile): Manifest[] => {
+  const repoName = github.context.repo.repo
+  const version = '1.0.0'
   const parsedFile = YAML.parse(fileContent) as LockFile
 
   const packageStore = createDependenciesList(parsedFile.packages)
 
   return Object.entries(parsedFile.importers).map(([workspace, definition]) => {
     const manifest = new Manifest(
-      workspace === '.' ? 'root' : workspace,
+      workspace === '.' ? `${repoName} ${version}` : `${repoName}/${workspace} ${version}`,
       `${workspace}/package.json`
     )
     if (definition?.specifiers) {
